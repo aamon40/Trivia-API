@@ -158,7 +158,7 @@ The API will return the following errors when requests fail:
 - Returns: An object with a single key, categories, that contains an object of id: category_string key:value pairs.
 - Request Arguments: None
 
-Sample: curl http://127.0.0.1:5000/categories
+Sample: `curl http://127.0.0.1:5000/categories`
 
 ```bash
 {
@@ -176,7 +176,7 @@ Sample: curl http://127.0.0.1:5000/categories
 - Returns a list of questions, success value, and total number of questions. Also returns a list of the categories.
 - Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
 
-Sample: curl http://127.0.0.1:5000/questions
+Sample: `curl http://127.0.0.1:5000/questions`
 
 ```bash
 {
@@ -216,7 +216,7 @@ Sample: curl http://127.0.0.1:5000/questions
 - Deletes a selected question by id if it exists.
 - Returns a JSON object of the deleted_id, remaining questions, and length of total questions.
 
-Sample: curl -X DELETE http://127.0.0.1:5000/questions/16?page=2
+Sample: `curl -X DELETE http://127.0.0.1:5000/questions/16?page=2`
 
 ```bash
 {
@@ -256,7 +256,7 @@ Sample: curl -X DELETE http://127.0.0.1:5000/questions/16?page=2
   fields: answer, difficulty and category.
 - Returns a success value and ID of the question.
 
-Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"Who is the founder of Space X?", "answer":"Elon Musk", "category":"1", "difficulty":"2"}'
+Sample: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"Who is the founder of Space X?", "answer":"Elon Musk", "category":"1", "difficulty":"2"}'`
 
 ```bash
 {
@@ -269,7 +269,7 @@ Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: applicati
 
 - Return questions with matching strings if present and none if not present. Search is case insensitive.
 
-Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"searchTerm":"actor"}'
+Sample: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"searchTerm":"actor"}'`
 
 ```bash
 {
@@ -292,7 +292,7 @@ Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: applicati
 
 - Returns JSON response of current_category, and all the questions in the specified.
 
-Sample: curl http://localhost:5000/categories/1/questions
+Sample: `curl http://localhost:5000/categories/1/questions`
 
 ```bash
 {
@@ -328,7 +328,7 @@ Sample: curl http://localhost:5000/categories/1/questions
 
 - Allows the user to create either a random quiz or one based on category.
 
-Sample: curl http://localhost:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions":[], "quiz_category":{"type":"Art","id":2}}'
+Sample: `curl http://localhost:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions":[], "quiz_category":{"type":"Art","id":2}}'`
 
 ```bash
 {
