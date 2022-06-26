@@ -238,8 +238,8 @@ def create_app(test_config=None):
                     previous_questions), Question.category == category_id).all()
                 question = None
 
-                if(questions):
-                    question = random.choice(questions)
+            if(questions):
+                question = random.choice(questions)
 
                 return jsonify({
                     'success': True,
