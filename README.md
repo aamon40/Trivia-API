@@ -150,6 +150,7 @@ The API will return the following errors when requests fail:
 - 400: bad request
 - 404: resource not found
 - 422: unprocessable
+- 500: internal server error
 
 # Endpoints
 
