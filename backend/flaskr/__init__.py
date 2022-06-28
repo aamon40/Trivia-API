@@ -225,27 +225,27 @@ def create_app(test_config=None):
 
         try:
             body = request.get_json()
-            previous_questions = body.get('previous_questions', None)
-            quiz_category = body.get('quiz_category', None)
-            category_id = quiz_category['id']
 
-            if category_id == 0:
-                questions = Question.query.filter(
-                    Question.id.notin_(previous_questions)).all()
+            if not ('quiz_category' in body and 'previous_questions' in body):
+                abort(422)
 
+            category = body.get('quiz_category')
+            previous_questions = body.get('previous_questions')
+
+            if category['type'] == 'click':
+                possible_questions = Question.query.filter(
+                    Question.id.notin_((previous_questions))).all()
             else:
-                questions = Question.query.filter(Question.id.notin_(
-                    previous_questions), Question.category == category_id).all()
-                question = None
+                possible_questions = Question.query.filter_by(
+                    category=category['id']).filter(Question.id.notin_((previous_questions))).all()
 
-            if(questions):
-                question = random.choice(questions)
+            new_question = possible_questions[random.randrange(
+                0, len(possible_questions))].format() if len(possible_questions) > 0 else None
 
-                return jsonify({
-                    'success': True,
-                    'question': question.format()
-                })
-
+            return jsonify({
+                'success': True,
+                'question': new_question
+            })
         except:
             abort(422)
 
@@ -277,6 +277,14 @@ def create_app(test_config=None):
             "error": 400,
             "message": "bad request"
         }), 400
+
+    @app.errorhandler(405)
+    def not_found(error):
+        return jsonify({
+            "success": False,
+            "error": 405,
+            "message": "method not allowed"
+        }), 405
 
     @app.errorhandler(500)
     def server_error(error):

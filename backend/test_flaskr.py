@@ -70,6 +70,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['categories'])
         self.assertTrue(len(data['categories']))
 
+    def test_405_get_categories(self):
+        res = self.client().delete('/categories')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'method not allowed')
+
     def test_get_questions_by_category(self):
         res = self.client().get('categories/1/questions')
         data = json.loads(res.data)
@@ -92,15 +100,23 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(res.data)
         self.assertTrue(data['success'])
 
-    def test_delete_question(self):
-        res = self.client().delete('/questions/31')
+    def test_405_if_question_creation_not_allowed(self):
+        res = self.client().post('/questions/10000', json=self.new_question)
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 31).one_or_none()
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'method not allowed')
+
+    def test_delete_question(self):
+        res = self.client().delete('/questions/37')
+        data = json.loads(res.data)
+
+        question = Question.query.filter(Question.id == 37).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted_question'], '31')
+        self.assertEqual(data['deleted_question'], '37')
         self.assertTrue(data['total_questions'])
         self.assertTrue(len(data['questions']))
 
@@ -114,13 +130,13 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_search_question_with_results(self):
         res = self.client().post('/questions/search',
-                                 json={'searchTerm': 'What'})
+                                 json={'searchTerm': 'actor'})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['total_questions'])
-        self.assertEqual(len(data['questions']), 10)
+        self.assertEqual(len(data['questions']), 1)
 
     def test_search_question_without_results(self):
         res = self.client().post('/questions/search',
