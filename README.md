@@ -266,7 +266,7 @@ Sample: `curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: applicat
 }
 ```
 
-## POST '/questions/search'
+## POST '/questions'
 
 - Return questions with matching strings if present and none if not present. Search is case insensitive.
 

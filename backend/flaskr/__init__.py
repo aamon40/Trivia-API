@@ -78,6 +78,8 @@ def create_app(test_config=None):
         current_questions = paginate_questions(request, selection)
 
         categories = Category.query.order_by(Category.type).all()
+        get_categories = {
+            category.id: category.type for category in categories}
 
         if len(current_questions) == 0:
             abort(404)
@@ -86,8 +88,7 @@ def create_app(test_config=None):
             'success': True,
             'questions': current_questions,
             'total_questions': len(selection),
-            'categories': {category.id: category.type for category in categories},
-            'current_category': None
+            'categories': get_categories,
         })
     """
     @TODO:
@@ -125,36 +126,6 @@ def create_app(test_config=None):
     which will require the question and answer text,
     category, and difficulty score.
 
-    TEST: When you submit a question on the "Add" tab,
-    the form will clear and the question will appear at the end of the last page
-    of the questions list in the "List" tab.
-    """
-    @app.route('/questions', methods=['POST'])
-    def create_question():
-        body = request.get_json()
-
-        if not ('question' in body and 'answer' in body and 'difficulty' in body and 'category' in body):
-            abort(422)
-
-        new_question = body.get('question', None)
-        new_answer = body.get('answer', None)
-        new_difficulty = body.get('difficulty', None)
-        new_category = body.get('category', None)
-
-        try:
-            question = Question(question=new_question, answer=new_answer,
-                                difficulty=new_difficulty, category=new_category)
-
-            question.insert()
-            return jsonify({
-                'success': True,
-                'new_question': question.id
-            })
-
-        except:
-            abort(422)
-
-    """
     @TODO:
     Create a POST endpoint to get questions based on a search term.
     It should return any questions for whom the search term
@@ -164,24 +135,52 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
-    @app.route('/questions/search', methods=['POST'])
-    def search_questions():
-        body = request.get_json()
-        search_term = body.get('searchTerm', None)
-
-        if search_term:
-            search_results = Question.query.filter(
-                Question.question.ilike(f'%{search_term}%')).all()
-
-            return jsonify({
-                'success': True,
-                'questions': [question.format() for question in search_results],
-                'total_questions': len(search_results),
-                'current_category': None
-            })
-
-        abort(404)
     """
+    TEST: When you submit a question on the "Add" tab,
+    the form will clear and the question will appear at the end of the last page
+    of the questions list in the "List" tab.
+    """
+    @app.route('/questions', methods=['POST'])
+    def create_question():
+        body = request.get_json()
+
+        new_question = body.get('question', None)
+        new_answer = body.get('answer', None)
+        new_difficulty = body.get('difficulty', None)
+        new_category = body.get('category', None)
+        search = body.get("searchTerm", None)
+
+        try:
+            if search:
+                selection = Question.query.filter(
+                    Question.question.ilike(f'%{search}%')).all()
+                current_questions = [question.format()
+                                     for question in selection]
+
+                return jsonify({
+                    "success": True,
+                    "questions": current_questions,
+                    "total_questions": len(selection)
+                })
+
+            else:
+                question = Question(question=new_question, answer=new_answer,
+                                    difficulty=new_difficulty,  category=new_category)
+                question.insert()
+
+                selection = Question.query.order_by(Question.id).all()
+                current_questions = paginate_questions(request, selection)
+
+                return jsonify({
+                    'success': True,
+                    'new_question': question.id,
+                })
+
+        except:
+            abort(422)
+
+    """
+
     @TODO:
     Create a GET endpoint to get questions based on category.
 
@@ -225,9 +224,6 @@ def create_app(test_config=None):
 
         try:
             body = request.get_json()
-
-            if not ('quiz_category' in body and 'previous_questions' in body):
-                abort(422)
 
             category = body.get('quiz_category')
             previous_questions = body.get('previous_questions')
