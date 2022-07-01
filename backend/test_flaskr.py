@@ -162,7 +162,7 @@ class TriviaTestCase(unittest.TestCase):
     def test_422_get_quiz(self):
         res = self.client().post('/quizzes',
                                  json={
-                                     'previous_questions': []
+                                     'previous_questions': {}
                                  })
         data = json.loads(res.data)
 

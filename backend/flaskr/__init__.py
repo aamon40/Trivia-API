@@ -221,26 +221,29 @@ def create_app(test_config=None):
     """
     @app.route('/quizzes', methods=['POST'])
     def play_quiz():
+        body = request.get_json()
+        category = body.get('quiz_category')
+        previous_questions = body.get('previous_questions')
 
         try:
-            body = request.get_json()
-
-            category = body.get('quiz_category')
-            previous_questions = body.get('previous_questions')
-
-            if category['type'] == 'click':
-                possible_questions = Question.query.filter(
-                    Question.id.notin_((previous_questions))).all()
+            # If the player selects no category(ie, All)
+            if category['id'] == 0:
+                questions = Question.query.filter(
+                    Question.id.notin_(previous_questions)).all()
             else:
-                possible_questions = Question.query.filter_by(
-                    category=category['id']).filter(Question.id.notin_((previous_questions))).all()
+                # If the player picks a category, filter by that category excluding old questions
+                questions = Question.query.filter(Question.id.notin_(
+                    previous_questions), Question.category == category['id']).all()
+            # Randomize new questions
+            next_question = None
 
-            new_question = possible_questions[random.randrange(
-                0, len(possible_questions))].format() if len(possible_questions) > 0 else None
+            if len(questions) > 0:
+                randomize = random.randint(0, len(questions)-1)
+                next_question = questions[randomize].format()
 
             return jsonify({
                 'success': True,
-                'question': new_question
+                'question': next_question
             })
         except:
             abort(422)
